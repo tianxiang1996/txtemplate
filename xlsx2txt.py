@@ -7,7 +7,7 @@ Desc    :   通过XLSX生成TXT文件
 --------------------------------'''
 try:
     import pandas as pd
-    import openpyxl
+    import openpyxl, IPy
     from jinja2 import nodes, Environment
     from jinja2.ext import Extension
 except ModuleNotFoundError:
@@ -15,6 +15,7 @@ except ModuleNotFoundError:
     print("\tpandas >= 1.5.0")
     print("\tJinja2 >= 3.1.2")
     print("\topenpyxl >= 3.0.10")
+    print("\tIPy >= 1.1")
     print("请使用pip安装")
     exit(1)
 else:
@@ -46,7 +47,6 @@ class Jinja2IPyExtension(Extension):
     def _ipy_support(self, ip, argv, caller):
         # 这个自定义的内部函数，包含了本扩展的主要逻辑。
         try:
-            import IPy
             rv = IPy.IP(ip)
         except ModuleNotFoundError:
             return 'IPyModuleNotFound'
