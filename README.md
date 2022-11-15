@@ -3,12 +3,18 @@
 一个通过txt模板和Excel表格生成txt文件的小工具  
 可以用来生成网络设备配置脚本等
 
+#### 依赖库
+**使用本工具需要**
+- python3
+- pandas >= 1.5.0  
+- Jinja2 >= 3.1.2  
+- openpyxl >= 3.0.10  
 
 #### 使用说明
 
-python xlsx2txt_v2215.py [-h] [-r | -x XLSX | -v] [-t TEMPLATE] [-p PREFIX | -a]
+>python xlsx2txt.py [-h] [-r | -x XLSX | -v] [-t TEMPLATE] [-p PREFIX | -a]
 
- **可选参数:** 
+ **可选参数** 
 <table>
 <tr><td>-h, --help</td><td>查看帮助</td></tr>
 <tr><td>-r, --request</td><td>进入交互模式</td></tr>
@@ -19,5 +25,5 @@ python xlsx2txt_v2215.py [-h] [-r | -x XLSX | -v] [-t TEMPLATE] [-p PREFIX | -a]
 <tr><td>-a, --add</td><td>追加写入，模板内容会被写入同一个文件内</td></tr>
 </table>
 
-#### 示例
+
 
