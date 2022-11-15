@@ -32,11 +32,8 @@
 该插件用于在jinja2模板中对IP地址进行计算，模板格式{% ip ***address***, ***argv*** %}
 
 - argv为'+1'或者'-1'返回address+1或者-1，可以为任意数值
-
 - argv为'netmask_24'或者'netmask_255.255.255.0'返回网络号
-
 - 无argv或argv为其他值直接返回address
-
 - 格式错误返回IPERROR或NETMASKERROR
 
 #### 示例
@@ -89,6 +86,8 @@ interface GigabitEthernet1/0/1
 
 `python xlsx2txt.py -x ip.xlsx -t temp.txt `
 
+```
+>tree output
 output
 ├── SW1_line2.txt
 ├── SW2_line3.txt
@@ -96,6 +95,7 @@ output
 ├── SW4_line5.txt
 ├── SW5_line6.txt
 └── SW6_line7.txt
+```
 
 ```
 >cat output/SW1_line2.txt
@@ -124,6 +124,8 @@ interface GigabitEthernet1/0/1
 
 `python xlsx2txt.py -x ip.xlsx -t temp.txt -p "带外IP" `
 
+```
+>tree output
 output
 ├── 192.168.10.1_line2.txt
 ├── 192.168.10.2_line3.txt
@@ -131,6 +133,7 @@ output
 ├── 192.168.10.4_line5.txt
 ├── 192.168.10.5_line6.txt
 └── 192.168.10.6_line7.txt
+```
 
 使用追加写入时，根据模板生成的所有数据会循环写入一个output.txt文件中，使用方式如下
 
