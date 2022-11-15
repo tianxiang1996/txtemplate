@@ -6,9 +6,10 @@
 #### 依赖库
 **使用本工具需要**
 - python3
-- pandas >= 1.5.0  
-- Jinja2 >= 3.1.2  
-- openpyxl >= 3.0.10  
+- pandas >= 1.5.0
+- Jinja2 >= 3.1.2
+- openpyxl >= 3.0.10
+- IPy >= 1.1
 
 #### 使用说明
 
