@@ -49,27 +49,8 @@ class Jinja2IPyExtension(Extension):
             rv = ipaddress.ip_address(ip)
         except Exception:
             return 'IPERROR'
-
-        if type(argv) == str:
-            if argv.startswith("+") or argv.startswith("-"):
-                # 地址计算
-                prefix = argv[0]
-                num = argv[1:]
-                if num.isdigit():
-                    # 用eval计算数值的加减，然后对ip数值进行加减
-                    result = rv + eval(f"0{prefix}{num}")
-                return str(result)
-            elif argv.startswith("netmask"):
-                # 根据长度或掩码返回掩码或长度
-                prefix = argv.split("_")[-1]
-                try:
-                    result = ipaddress.IPv4Network(f"{rv}/{prefix}", False)
-                except Exception:
-                    return 'NETMASKERROR'
-                else:
-                    if "." in prefix: return str(result.prefixlen)
-                    else: return str(result.netmask)
-            elif argv.isdigit() or "." in argv:
+        else:
+            def netandmask(rv, argv):
                 # 根据长度或掩码返回地址与掩码或地址与长度
                 try:
                     result = ipaddress.IPv4Network(f"{rv}/{argv}", False)
@@ -79,7 +60,30 @@ class Jinja2IPyExtension(Extension):
                     if "." in argv: return f"{rv} {result.prefixlen}"
                     else: return f"{rv} {result.netmask}"
 
-        return str(rv)
+            if type(argv) == str:
+                if argv.startswith("+") or argv.startswith("-"):
+                    # 地址计算
+                    prefix = argv[0]
+                    num = argv[1:]
+                    if num.isdigit():
+                        # 用eval计算数值的加减，然后对ip数值进行加减
+                        result = rv + eval(f"0{prefix}{num}")
+                    return str(result)
+                elif argv.startswith("netmask"):
+                    # 根据长度或掩码返回网段号
+                    try:
+                        prefix = argv.split("_")[-1]
+                        result = ipaddress.IPv4Network(f"{rv}/{prefix}", False)
+                    except Exception:
+                        return 'NETMASKERROR'
+                    else:
+                        return str(result.network_address)
+                elif argv.isdigit() or "." in argv:
+                    return netandmask(rv, argv)
+            elif type(argv) == int:
+                return netandmask(rv, str(argv))
+
+            return str(rv)
 
 class xlsx2txt:
     def __init__(self, xlsfile) -> None:
