@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 '''--------------------------------
-Time    :   2022.10.23
+Time    :   2022.12.10
 Author  :   Tixanxiang.yin
-Version :   1.2
+Version :   1.3
 Desc    :   通过XLSX生成TXT文件
 --------------------------------'''
 try:
     import pandas as pd
-    import openpyxl, IPy
+    import openpyxl, ipaddress
     from jinja2 import nodes, Environment
     from jinja2.ext import Extension
 except ModuleNotFoundError:
@@ -15,7 +15,6 @@ except ModuleNotFoundError:
     print("\tpandas >= 1.5.0")
     print("\tJinja2 >= 3.1.2")
     print("\topenpyxl >= 3.0.10")
-    print("\tIPy >= 1.1")
     print("请使用pip安装")
     exit(1)
 else:
@@ -47,28 +46,44 @@ class Jinja2IPyExtension(Extension):
     def _ipy_support(self, ip, argv, caller):
         # 这个自定义的内部函数，包含了本扩展的主要逻辑。
         try:
-            rv = IPy.IP(ip)
-        except ModuleNotFoundError:
-            return 'IPyModuleNotFound'
+            rv = ipaddress.ip_address(ip)
         except Exception:
             return 'IPERROR'
-
-        if type(argv) == str:
-            if argv.startswith("+") or argv.startswith("-"):
-                prefix = argv[0]
-                num = argv[1:]
-                if num.isdigit():
-                    # 用eval计算数值的加减，然后对ip数值进行加减
-                    result = IPy.IP(rv.ip + eval(f"0{prefix}{num}"))
-                return result.strNormal()
-            elif argv.startswith("netmask"):
-                prefix = argv.split("_")[-1]
+        else:
+            def netandmask(rv, argv):
+                # 根据长度或掩码返回地址与掩码或地址与长度
                 try:
-                    result = rv.make_net(prefix)
+                    result = ipaddress.IPv4Network(f"{rv}/{argv}", False)
                 except Exception:
-                    return 'NETMASKERROR'
-                else: return result.net().strNormal()
-        return rv.strNormal()
+                    return 'VALUEERROR'
+                else:
+                    if "." in argv: return f"{rv} {result.prefixlen}"
+                    else: return f"{rv} {result.netmask}"
+
+            if type(argv) == str:
+                if argv.startswith("+") or argv.startswith("-"):
+                    # 地址计算
+                    prefix = argv[0]
+                    num = argv[1:]
+                    if num.isdigit():
+                        # 用eval计算数值的加减，然后对ip数值进行加减
+                        result = rv + eval(f"0{prefix}{num}")
+                    return str(result)
+                elif argv.startswith("netmask"):
+                    # 根据长度或掩码返回网段号
+                    try:
+                        prefix = argv.split("_")[-1]
+                        result = ipaddress.IPv4Network(f"{rv}/{prefix}", False)
+                    except Exception:
+                        return 'NETMASKERROR'
+                    else:
+                        return str(result.network_address)
+                elif argv.isdigit() or "." in argv:
+                    return netandmask(rv, argv)
+            elif type(argv) == int:
+                return netandmask(rv, str(argv))
+
+            return str(rv)
 
 class xlsx2txt:
     def __init__(self, xlsfile) -> None:
@@ -90,7 +105,7 @@ class xlsx2txt:
                 if prefix: filename = f"{i[prefix]}"
                 else: filename = f"{i[list(i.keys())[0]]}"
                 if writemode == "a": filename = "output.txt"
-                else: filename += f"_line{self.line.index(i)+2}.txt"
+                else: filename += f"_line{self.line.index(i)+1}.txt"
                 out = open(filename, writemode, encoding='utf8')
             except KeyError:
                 print("前缀无效，请重新选择")
@@ -103,12 +118,12 @@ class xlsx2txt:
                 print(e)
                 break
             else:
-                if writemode == "a": print(f"line{self.line.index(i)} >> {filename}")
+                if writemode == "a": print(f"line{self.line.index(i)+1} >> {filename}")
                 else: print(filename)
                 jinjaenv = Environment(extensions=[Jinja2IPyExtension])
-                result = jinjaenv.from_string(source).render(**i)
-                out.write(result)
-                if not result.endswith("\n"): out.write("\n")
+                result = jinjaenv.from_string(source).render(**i).split("\n")
+                for line in result:
+                    if line: out.write(line + "\n")
                 out.close()
 
 def request_mode():
