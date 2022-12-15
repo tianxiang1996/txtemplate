@@ -66,27 +66,24 @@
 ```
 #
  sysname {{设备名及标签}}
-#  
- ip vpn-instance MGT
 #
 interface M-GigabitEthernet0/0/0
  description MGT
- ip binding vpn-instance OOB
  ip address {{带外IP}} 255.255.255.0
 #
 interface GigabitEthernet1/0/1
  port link-mode route
  ip address {{接口IP}} 255.255.255.0
 #
- ip route-static vpn-instance MGT 0.0.0.0 0 {{带外网关}} description OB
+ ip route-static 0.0.0.0 0 {{带外网关}} description OB
  ip route-static 10.0.0.0 8 {% ip 接口IP , "+1" %} description OB
 #
 {% if 位置 == '东' %}
- info-center loghost vpn-instance MGT 192.168.1.1
- info-center loghost vpn-instance MGT 192.168.1.2
+ info-center loghost 192.168.1.1
+ info-center loghost 192.168.1.2
 {% else %}
- info-center loghost vpn-instance MGT 172.16.1.1
- info-center loghost vpn-instance MGT 172.16.1.2
+ info-center loghost 172.16.1.1
+ info-center loghost 172.16.1.2
 {% endif %}
 ```
 
@@ -109,23 +106,20 @@ output
 >cat output/SW1_line2.txt
 #
  sysname SW1
-#  
- ip vpn-instance MGT
 #
 interface M-GigabitEthernet0/0/0
  description MGT
- ip binding vpn-instance OOB
  ip address 192.168.10.1 255.255.255.0
 #
 interface GigabitEthernet1/0/1
  port link-mode route
  ip address 172.16.31.1 255.255.255.0
 #
- ip route-static vpn-instance MGT 0.0.0.0 0 192.168.10.254 description OB
+ ip route-static 0.0.0.0 0 192.168.10.254 description OB
  ip route-static 10.0.0.0 8 172.16.31.2 description OB
 #
- info-center loghost vpn-instance MGT 192.168.1.1
- info-center loghost vpn-instance MGT 192.168.1.2
+ info-center loghost 192.168.1.1
+ info-center loghost 192.168.1.2
 ```
 
 ##### 文件前缀
